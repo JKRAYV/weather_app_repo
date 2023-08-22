@@ -5,13 +5,19 @@ import pgeocode
 #--Temporary code--
 
 df = pd.read_csv('us_zip_codes_to_longitude_and_latitude.csv')
-town_or_zip = input("Please enter a zipcode: ")
+town_or_zip = input("Please enter a City(e.g. City, State Initial) or Zipcode: ")
 
 # If the first character is numeric
 if town_or_zip[0].isnumeric():
     towndata = df[df['Zip'] == int(town_or_zip)]
-else:  # Treat the input as a town name
-    towndata = df[df['City'].str.contains(town_or_zip, case=False, na=False)]
+else:  
+    # Split input into town and state initial using comma as separator
+    town, state_initial = town_or_zip.split(',')
+    # Only strip spaces from the state_initial
+    state_initial = state_initial.strip()
+
+    # Search for both town and state in the dataframe
+    towndata = df[(df['City'].str.contains(town, case=False, na=False)) & (df['State'] == state_initial.upper())]
 
 latitude = towndata['Latitude'].values[0]
 longitude = towndata['Longitude'].values[0]
@@ -19,7 +25,6 @@ location_url = f"https://api.weather.gov/points/{latitude},{longitude}"
 
 response = requests.get(location_url)
 data = response.json
-print(response.text)
 if response.status_code == 200:
     data = response.json()
     
@@ -41,8 +46,13 @@ def forecast(forecast_data):
         # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
     if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
         forecast_periods = forecast_data['properties']['periods']
+        city = data['properties']['relativeLocation']['properties']['city']
+        state = data['properties']['relativeLocation']['properties']['state']
         
         # Loop through the forecast periods and print out the first 20 periods (10 days, assuming 2 periods per day)
+        print("-----------------------------------------------" *2 + \
+              f"\nForecast for {city}, {state}:\n" + \
+              "-----------------------------------------------" *2)
         for period in forecast_periods[:14]:
             name = period['name']
             detailed_forecast = period['detailedForecast']
