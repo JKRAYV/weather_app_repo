@@ -35,5 +35,29 @@ if response.status_code == 200:
 else:
     print(f"Request failed with status code: {response.status_code}")
 
-requests.get(forecast_url).json()
+forecast_data = requests.get(forecast_url).json()
+
+def forecast(forecast_data):
+        # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
+    if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
+        forecast_periods = forecast_data['properties']['periods']
+        
+        # Loop through the forecast periods and print out the first 20 periods (10 days, assuming 2 periods per day)
+        for period in forecast_periods[:14]:
+            name = period['name']
+            detailed_forecast = period['detailedForecast']
+            temperature = period['temperature']
+            temperature_unit = period['temperatureUnit']
+            wind_speed = period['windSpeed']
+            wind_direction = period['windDirection']
+            
+            print(f"{name}:")
+            print(f"Temperature: {temperature} {temperature_unit}")
+            print(f"Wind: {wind_speed} {wind_direction}")
+            print(f"Forecast: {detailed_forecast}")
+            print("-----------------------------------------------")  # Separator for clarity
+    else:
+        print("Forecast data doesn't contain the expected structure.")
+
+forecast(forecast_data)
 #--Temporary code--
