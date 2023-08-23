@@ -20,7 +20,22 @@ def forecast_data(): # returns forecast and city data as json.
         state_initial = state_initial.strip()
 
         # Search for both town and state in the dataframe
-        towndata = nomi.query_location(town).squeeze()
+        towndata = nomi.query_location(town)
+        towndata = towndata[towndata['state_code'] == state_initial.upper()].squeeze()
+
+        # If there are multiple zip codes for the city
+        if towndata.shape[0] > 1:
+            print("Multiple zip codes found for the city. Please select one:")
+            num = 0
+            for index, row in towndata.iterrows():
+                num += 1
+                print(f"{num}: {row['postal_code']}")
+
+            # Ask the user to specify the zip code
+            selection = int(input("Enter the number corresponding to your desired zip code: "))
+            towndata = towndata.iloc[selection - 1]
+
+    print(towndata)
 
     latitude = towndata['latitude']
     longitude = towndata['longitude']
