@@ -32,6 +32,7 @@ def create_user(userObject):
         "username" : userObject["username"],
         "email" : userObject["email"],
         "address" : userObject["address"],
+        "favorites" : [],
         "password" : hashed_password
     })
 
@@ -93,3 +94,36 @@ def delete_user_by_id(id):
 
 def delete_user_by_username(username):
     return user.delete_one({"username": username})
+
+#favorites list functionality
+
+def add_favorite(id, fav): #add 1 favorite
+    filter = {"_id": id} 
+    list = user.find_one(filter)["favorites"]
+
+    list = list.append(fav) #need to parse fav into location object?
+    
+    update = {"$set": {
+        "favorites" : list
+    }}
+    return user.update_one(filter, update)
+
+def clear_favorite(id): #clear all favorites
+    filter = {"_id": id} 
+    list = []
+    
+    update = {"$set": {
+        "favorites" : list
+    }}
+    return user.update_one(filter, update)
+
+def remove_favorite(id, fav): #clear 1 favorite
+    filter = {"_id": id} 
+    list = user.find_one(filter)["favorites"]
+
+    list = list.remove(fav) #needs error checking, need to parse fav into location object?
+    
+    update = {"$set": {
+        "favorites" : list
+    }}
+    return user.update_one(filter, update)
