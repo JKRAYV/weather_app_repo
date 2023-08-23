@@ -33,6 +33,7 @@ def create_user(userObject):
         "email" : userObject["email"],
         "address" : userObject["address"],
         "favorites" : [],
+        "home" : userObject["home"],
         "password" : hashed_password
     })
 
@@ -96,7 +97,6 @@ def delete_user_by_username(username):
     return user.delete_one({"username": username})
 
 #favorites list functionality
-
 def add_favorite(id, fav): #add 1 favorite
     filter = {"_id": id} 
     list = user.find_one(filter)["favorites"]
@@ -125,5 +125,14 @@ def remove_favorite(id, fav): #clear 1 favorite
     
     update = {"$set": {
         "favorites" : list
+    }}
+    return user.update_one(filter, update)
+
+#home location functionality
+def set_home(id, home):
+    filter = {"_id": id} 
+    
+    update = {"$set": {
+        "home" : home
     }}
     return user.update_one(filter, update)
