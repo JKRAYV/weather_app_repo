@@ -6,12 +6,13 @@ import pgeocode
 
 def forecast_data(): # returns forecast and city data as json.
 
-    df = pd.read_csv('us_zip_codes_to_longitude_and_latitude.csv')
+    nomi = pgeocode.Nominatim('us')
+
     town_or_zip = input("Please enter a City(e.g. City, State Initial) or Zipcode: ")
 
     # If the first character is numeric
     if town_or_zip[0].isnumeric():
-        towndata = df[df['Zip'] == int(town_or_zip)]
+        towndata = nomi.query_postal_code(town_or_zip)
     else:  
         # Split input into town and state initial using comma as separator
         town, state_initial = town_or_zip.split(',')
@@ -19,10 +20,10 @@ def forecast_data(): # returns forecast and city data as json.
         state_initial = state_initial.strip()
 
         # Search for both town and state in the dataframe
-        towndata = df[(df['City'].str.contains(town, case=False, na=False)) & (df['State'] == state_initial.upper())]
+        towndata = nomi.query_location(town).squeeze()
 
-    latitude = towndata['Latitude'].values[0]
-    longitude = towndata['Longitude'].values[0]
+    latitude = towndata['latitude']
+    longitude = towndata['longitude']
     location_url = f"https://api.weather.gov/points/{latitude},{longitude}"
 
     response = requests.get(location_url)
@@ -47,7 +48,7 @@ def forecast_data(): # returns forecast and city data as json.
     return forecast_data, data
 
 def forecast(forecast_data, data): #Returns forcast, requires forecast_data, and city data.
-    
+
         # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
     if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
         forecast_periods = forecast_data['properties']['periods']
