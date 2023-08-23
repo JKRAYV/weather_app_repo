@@ -40,17 +40,19 @@ def update_user_by_id(id, userObject):
     # Defining the filter
     filter = {"_id": id}
     # defining what we want updated
+    hashed_password = generate_password_hash(userObject['password'], method='sha256')
     update = {"$set": {
         "first_name" : userObject["first_name"],
         "last_name" : userObject["last_name"],
         "username" : userObject["username"],
         "email" : userObject["email"],
         "address" : userObject["address"],
-        "password" : userObject["password"]
+        "password" : hashed_password
     }}
     return user.update_one(filter, update)
 
 def update_user_by_username(username, userObject):
+    hashed_password = generate_password_hash(userObject['password'], method='sha256')
     # Defining the filter
     filter = {"username": username}
     # defining what we want updated
@@ -60,7 +62,7 @@ def update_user_by_username(username, userObject):
         "username" : userObject["username"],
         "email" : userObject["email"],
         "address" : userObject["address"],
-        "password" : userObject["password"]
+        "password" : hashed_password
     }}
     return user.update_one(filter, update)
 
