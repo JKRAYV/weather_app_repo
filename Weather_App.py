@@ -22,9 +22,9 @@ def forecast_data(): # returns forecast and city data as json.
         # Search for both town and state in the dataframe
         towndata = nomi.query_location(town)
         towndata = towndata[towndata['state_code'] == state_initial.upper()].squeeze()
-
+        print(towndata.shape)
         # If there are multiple zip codes for the city
-        if towndata.shape[0] > 1:
+        if towndata.shape[0] > 12:
             print("Multiple zip codes found for the city. Please select one:")
             num = 0
             for index, row in towndata.iterrows():
