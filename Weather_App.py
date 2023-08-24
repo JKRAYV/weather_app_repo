@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import pgeocode
+import folium
 import math
 
 #--Temporary code--
@@ -44,8 +45,8 @@ def forecast_data(): # returns forecast and city data as json.
 
     if(not (towndata["place_name"] != towndata["place_name"])):
         
-        latitude = towndata['latitude'].values[0]
-        longitude = towndata['longitude'].values[0]
+        latitude = towndata['latitude']
+        longitude = towndata['longitude']
         location_url = f"https://api.weather.gov/points/{latitude},{longitude}"
 
         response = requests.get(location_url)
@@ -60,7 +61,7 @@ def forecast_data(): # returns forecast and city data as json.
                 gridY = data['properties']['gridY']
                 office = data['properties']['cwa']
             
-                forecast_url = f"https://api.weather.gov/gridpoints/{office}/{gridX},{gridY}/forecast"
+                forecast_data = f"https://api.weather.gov/gridpoints/{office}/{gridX},{gridY}/forecast"
             else:
                 print("The response JSON does not contain the expected keys.")
                 forecast_data, data = None, None
@@ -72,18 +73,18 @@ def forecast_data(): # returns forecast and city data as json.
         forecast_data, data = None, None
 
     if(forecast_data != None and data != None):
-        forecast_data = requests.get(forecast_url).json()
-    return forecast_data, data
+        forecast_data = requests.get(forecast_data).json()
+    return forecast_data, towndata
 
-def forecast(forecast_data, data): #Returns forcast, requires forecast_data, and city data.
+def forecast(forecast_data, towndata): #Returns forcast, requires forecast_data, and city data.
 
 
         # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
-    if (forecast_data != None and data != None):
+    if (forecast_data != None):
         if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
             forecast_periods = forecast_data['properties']['periods']
-            city = data['properties']['relativeLocation']['properties']['city']
-            state = data['properties']['relativeLocation']['properties']['state']
+            city = towndata['place_name']
+            state = towndata['state_name']
         
         # Loop through the forecast periods and print out the first 20 periods (10 days, assuming 2 periods per day)
             print("-----------------------------------------------" *2 + \
@@ -107,7 +108,7 @@ def forecast(forecast_data, data): #Returns forcast, requires forecast_data, and
     else:
         print("Location not found.")
 
+weather_data, towndata = forecast_data()
 
-forecastdata, data = forecast_data()
-forecast(forecastdata, data)
+forecast(weather_data, towndata)
 #--Temporary code--
