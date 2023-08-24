@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import pgeocode
+import folium
 
 #--Temporary code--
 
@@ -60,15 +61,15 @@ def forecast_data(): # returns forecast and city data as json.
         print(f"Request failed with status code: {response.status_code}")
 
     forecast_data = requests.get(forecast_url).json()
-    return forecast_data, data
+    return forecast_data, data, towndata
 
-def forecast(forecast_data, data): #Returns forcast, requires forecast_data, and city data.
+def forecast(forecast_data, towndata): #Returns forcast, requires forecast_data, and city data.
 
         # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
     if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
         forecast_periods = forecast_data['properties']['periods']
-        city = data['properties']['relativeLocation']['properties']['city']
-        state = data['properties']['relativeLocation']['properties']['state']
+        city = towndata['place_name']
+        state = towndata['state_name']
         
         # Loop through the forecast periods and print out the first 20 periods (10 days, assuming 2 periods per day)
         print("-----------------------------------------------" *2 + \
@@ -90,7 +91,35 @@ def forecast(forecast_data, data): #Returns forcast, requires forecast_data, and
     else:
         print("Forecast data doesn't contain the expected structure.")
 
+def create_weather_map(forecast_data, towndata):
+    # Extract the latitude and longitude of the city
+    latitude = towndata['latitude']
+    longitude = towndata['longitude']
+    
+    # Create a map centered around the city
+    m = folium.Map(location=[latitude, longitude], zoom_start=12)
 
-forecastdata, data = forecast_data()
-forecast(forecastdata, data)
+    # Extract forecast details for tooltip
+    first_forecast = forecast_data['properties']['periods'][0]
+    detailed_forecast = first_forecast['detailedForecast']
+    temperature = first_forecast['temperature']
+    temperature_unit = first_forecast['temperatureUnit']
+
+    tooltip_content = f"Temperature: {temperature} {temperature_unit}<br>{detailed_forecast}"
+
+    # Add a marker for the city
+    folium.Marker(
+        [latitude, longitude],
+        tooltip=tooltip_content
+    ).add_to(m)
+
+    # Save map to an HTML file or display inline in a Jupyter notebook
+    m.save('weather_map.html')
+
+forecastdata, data, towndata = forecast_data()
+create_weather_map(forecastdata, towndata)
+
+
+forecastdata, data, towndata = forecast_data()
+forecast(forecastdata, towndata)
 #--Temporary code--
