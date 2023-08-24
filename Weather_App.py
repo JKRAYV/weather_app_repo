@@ -30,7 +30,7 @@ def forecast_data(): # returns forecast and city data as json.
         towndata = towndata[towndata['state_code'] == state_initial.upper()].squeeze()
         print(towndata.shape)
         # If there are multiple zip codes for the city
-        if towndata.shape[0] > 12:
+        if towndata.shape[0] > 1:
             print("Multiple zip codes found for the city. Please select one:")
             num = 0
             for index, row in towndata.iterrows():
@@ -40,6 +40,9 @@ def forecast_data(): # returns forecast and city data as json.
             # Ask the user to specify the zip code
             selection = int(input("Enter the number corresponding to your desired zip code: "))
             towndata = towndata.iloc[selection - 1]
+        elif towndata.shape[0] < 1:
+            print("Invalid City String.")
+            return None, None
 
     print(towndata)
 
