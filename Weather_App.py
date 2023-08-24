@@ -81,7 +81,6 @@ def forecast_data(): # returns forecast and city data as json.
 
 def forecast(forecast_data, towndata): #Returns forcast, requires forecast_data, and city data.
 
-
         # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
     if (forecast_data != None):
         if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
@@ -106,10 +105,14 @@ def forecast(forecast_data, towndata): #Returns forcast, requires forecast_data,
                 print(f"Wind: {wind_speed} {wind_direction}")
                 print(f"Forecast: {detailed_forecast}")
                 print("-----------------------------------------------")  # Separator for clarity
+
+            return True
         else:
             print("Forecast data doesn't contain the expected structure.")
+            return False
     else:
         print("Location not found.")
+        return False
 
 weather_data, towndata = forecast_data()
 
