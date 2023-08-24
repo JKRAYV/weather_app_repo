@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 import pgeocode
 import folium
+import math
 
 #--Temporary code--
 
@@ -38,88 +39,72 @@ def forecast_data(): # returns forecast and city data as json.
 
     print(towndata)
 
-    latitude = towndata['latitude']
-    longitude = towndata['longitude']
-    location_url = f"https://api.weather.gov/points/{latitude},{longitude}"
-
-    response = requests.get(location_url)
-    data = response.json
-
-    if response.status_code == 200:
-        data = response.json()
+    if(not (towndata["place_name"] != towndata["place_name"])):
         
-        # Make sure data contains the required keys
-        if 'properties' in data and 'gridX' in data['properties'] and 'gridY' in data['properties']:
-            gridX = data['properties']['gridX']
-            gridY = data['properties']['gridY']
-            office = data['properties']['cwa']
-            
-            forecast_url = f"https://api.weather.gov/gridpoints/{office}/{gridX},{gridY}/forecast"
-        else:
-            print("The response JSON does not contain the expected keys.")
-    else:
-        print(f"Request failed with status code: {response.status_code}")
+        latitude = towndata['latitude']
+        longitude = towndata['longitude']
+        location_url = f"https://api.weather.gov/points/{latitude},{longitude}"
 
-    forecast_data = requests.get(forecast_url).json()
-    return forecast_data, data, towndata
+        response = requests.get(location_url)
+        data = response.json
+
+        if response.status_code == 200:
+            data = response.json()
+        
+            # Make sure data contains the required keys
+            if 'properties' in data and 'gridX' in data['properties'] and 'gridY' in data['properties']:
+                gridX = data['properties']['gridX']
+                gridY = data['properties']['gridY']
+                office = data['properties']['cwa']
+            
+                forecast_data = f"https://api.weather.gov/gridpoints/{office}/{gridX},{gridY}/forecast"
+            else:
+                print("The response JSON does not contain the expected keys.")
+                forecast_data, data = None, None
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            forecast_data, data = None, None
+    else:
+        print(f"Invalid City, State Initial, or Zipcode.")
+        forecast_data, data = None, None
+
+    if(forecast_data != None and data != None):
+        forecast_data = requests.get(forecast_data).json()
+    return forecast_data, towndata
 
 def forecast(forecast_data, towndata): #Returns forcast, requires forecast_data, and city data.
 
+
         # Ensure the forecast_data contains the expected 'properties' and 'periods' keys
-    if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
-        forecast_periods = forecast_data['properties']['periods']
-        city = towndata['place_name']
-        state = towndata['state_name']
+    if (forecast_data != None):
+        if 'properties' in forecast_data and 'periods' in forecast_data['properties']:
+            forecast_periods = forecast_data['properties']['periods']
+            city = towndata['place_name']
+            state = towndata['state_name']
         
         # Loop through the forecast periods and print out the first 20 periods (10 days, assuming 2 periods per day)
-        print("-----------------------------------------------" *2 + \
-              f"\nForecast for {city}, {state}:\n" + \
-              "-----------------------------------------------" *2)
-        for period in forecast_periods[:14]:
-            name = period['name']
-            detailed_forecast = period['detailedForecast']
-            temperature = period['temperature']
-            temperature_unit = period['temperatureUnit']
-            wind_speed = period['windSpeed']
-            wind_direction = period['windDirection']
+            print("-----------------------------------------------" *2 + \
+                f"\nForecast for {city}, {state}:\n" + \
+                "-----------------------------------------------" *2)
+            for period in forecast_periods[:14]:
+                name = period['name']
+                detailed_forecast = period['detailedForecast']
+                temperature = period['temperature']
+                temperature_unit = period['temperatureUnit']
+                wind_speed = period['windSpeed']
+                wind_direction = period['windDirection']
             
-            print(f"{name}:")
-            print(f"Temperature: {temperature} {temperature_unit}")
-            print(f"Wind: {wind_speed} {wind_direction}")
-            print(f"Forecast: {detailed_forecast}")
-            print("-----------------------------------------------")  # Separator for clarity
+                print(f"{name}:")
+                print(f"Temperature: {temperature} {temperature_unit}")
+                print(f"Wind: {wind_speed} {wind_direction}")
+                print(f"Forecast: {detailed_forecast}")
+                print("-----------------------------------------------")  # Separator for clarity
+        else:
+            print("Forecast data doesn't contain the expected structure.")
     else:
-        print("Forecast data doesn't contain the expected structure.")
+        print("Location not found.")
 
-def create_weather_map(forecast_data, towndata):
-    # Extract the latitude and longitude of the city
-    latitude = towndata['latitude']
-    longitude = towndata['longitude']
-    
-    # Create a map centered around the city
-    m = folium.Map(location=[latitude, longitude], zoom_start=12)
+weather_data, towndata = forecast_data()
 
-    # Extract forecast details for tooltip
-    first_forecast = forecast_data['properties']['periods'][0]
-    detailed_forecast = first_forecast['detailedForecast']
-    temperature = first_forecast['temperature']
-    temperature_unit = first_forecast['temperatureUnit']
-
-    tooltip_content = f"Temperature: {temperature} {temperature_unit}<br>{detailed_forecast}"
-
-    # Add a marker for the city
-    folium.Marker(
-        [latitude, longitude],
-        tooltip=tooltip_content
-    ).add_to(m)
-
-    # Save map to an HTML file or display inline in a Jupyter notebook
-    m.save('weather_map.html')
-
-forecastdata, data, towndata = forecast_data()
-create_weather_map(forecastdata, towndata)
-
-
-forecastdata, data, towndata = forecast_data()
-forecast(forecastdata, towndata)
+forecast(weather_data, towndata)
 #--Temporary code--
