@@ -15,6 +15,10 @@ def forecast_data(): # returns forecast and city data as json.
     if town_or_zip[0].isnumeric():
         towndata = nomi.query_postal_code(town_or_zip)
     else:  
+        if("," not in town_or_zip):
+            print("Invalid City String.")
+            return None, None
+        
         # Split input into town and state initial using comma as separator
         town, state_initial = town_or_zip.split(',')
         # Only strip spaces from the state_initial
