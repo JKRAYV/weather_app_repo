@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import pgeocode
+import math
 
 #--Temporary code--
 
@@ -37,7 +38,7 @@ def forecast_data(): # returns forecast and city data as json.
 
     print(towndata)
 
-    if(towndata.size != 0):
+    if(not math.isnan(towndata["place_name"])):
         
         latitude = towndata['Latitude'].values[0]
         longitude = towndata['Longitude'].values[0]
