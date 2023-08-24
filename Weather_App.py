@@ -38,10 +38,10 @@ def forecast_data(): # returns forecast and city data as json.
 
     print(towndata)
 
-    if(not math.isnan(towndata["place_name"])):
+    if(not (towndata["place_name"] != towndata["place_name"])):
         
-        latitude = towndata['Latitude'].values[0]
-        longitude = towndata['Longitude'].values[0]
+        latitude = towndata['latitude'].values[0]
+        longitude = towndata['longitude'].values[0]
         location_url = f"https://api.weather.gov/points/{latitude},{longitude}"
 
         response = requests.get(location_url)
