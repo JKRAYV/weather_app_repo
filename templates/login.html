@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Login</title>
+            <link rel= "stylesheet" href= "{{ url_for('static',filename='/static/css/styles.css') }}">
+        </head>
+        <style>
+            /* Reset some default styles */
+body, h1, h2, h3, p {
+    margin: 0;
+    padding: 0;
+}
+
+/* Apply a white background to the body */
+body {
+    background: linear-gradient(#ffffff, #e2eff7, #a2c8f3, #22c0ff);
+    color: #fff;
+    font-family: Arial, Impact,;
+    display: flex;
+    height: 100vh; /* Set the body height to 100% of the viewport height */
+}
+
+/* Style headings with blue color */
+h1 {
+    margin: 10;
+    width: 100%;
+    height: 60px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(0, 135, 245);
+    background-color: #889aca75;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 45px;
+}
+
+.login-form {
+    width: 350px;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    color: rgb(0, 135, 245);
+}
+.login-form h1{
+   font-size: 40px; 
+   top: 50%;
+   left: 50%;
+   margin: 20px 0;
+   color: rgb(0, 135, 245);
+}
+.login-form label{
+    font-size: 20px;
+    margin: 15px 0;
+}
+.login-form input{
+    font-size: 16px;
+    width: 100%;
+    padding: 15px;
+    border: 0;
+    outline: none;
+    border-radius: 5px; 
+}
+.login-form button{
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px 0px;
+    padding: 10px 15px; 
+    width: 50%;
+    border-radius: 5px;
+    border: 0;
+}
+        </style>
+        <body style="background-color: rgb(255, 255, 255);">
+            <h1>Weather App</h1>
+            <div class="login-form">
+                <h1>Login</h1>
+                {% if error %}
+                <p style="color: rgb(0, 135, 245);">{{ error }}</p>
+                {% endif %}
+                <form method="POST" action="/">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="username">
+                    <label>Password</label>
+                    <input type="password" name= "password" placeholder="password">
+                    <button type="submit">Login</button>
+                </form>
+                <div class="not-user">
+                    <p>If you are not a user, click the button below to register</p>
+                    <a href="/register"><button type="submit">Register</button></a>
+                </div>
+            </div>
+        </body>
+        </html>
+    </html>
