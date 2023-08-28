@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Register</title>
+</head>
+<style>
 /* Reset some default styles */
 body, h1, h2, h3, p {
     margin: 0;
@@ -163,3 +172,26 @@ button{
     border-radius: 5px;
     border: 0;
 }
+</style>
+<body>
+    <div class="container">
+        <h1>Register</h1>
+        {% if error %}
+            <p style="color:rgb(0, 135, 245);">{{ error }}</p>
+        {% endif %}
+        <form method="POST" action="/register">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name">
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name">
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password">
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</body>
+</html>
