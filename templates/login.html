@@ -37,12 +37,21 @@ h1 {
     font-size: 45px;
 }
 
+p {
+    margin: 0px 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .login-form {
     width: 350px;
-    top: 40%;
-    left: 50%;
+    height:80%;
+    top: 54.25%;
+    left: 80%;
     transform: translate(-50%, -50%);
     position: absolute;
+    background-color: #889aca75;
     color: rgb(0, 135, 245);
 }
 .login-form h1{
@@ -54,12 +63,13 @@ h1 {
 }
 .login-form label{
     font-size: 20px;
-    margin: 15px 0;
+    margin: 0px 5%;
 }
 .login-form input{
     font-size: 16px;
-    width: 100%;
-    padding: 15px;
+    width: 80%;
+    padding: 10px;
+    margin: 0px 5%;
     border: 0;
     outline: none;
     border-radius: 5px; 
@@ -67,9 +77,47 @@ h1 {
 .login-form button{
     font-size: 18px;
     font-weight: bold;
-    margin: 20px 0px;
+    margin: 20px 5%;
     padding: 10px 15px; 
     width: 50%;
+    border-radius: 5px;
+    border: 0;
+}
+.forecast-search{
+    width: 40%;
+    height: 80%;
+    top:14.25%;
+    left: 20%;
+    position: absolute;
+    background-color: #889aca75;
+    color: rgb(0, 135, 245);
+}
+.forecast-search h1{
+   font-size: 40px; 
+   top: 50%;
+   left: 50%;
+   margin: 20px 0;
+   color: rgb(0, 135, 245);
+}
+.forecast-search input{
+    font-size: 16px;
+    width: 80%;
+    padding: 10px;
+    margin: 10px 8%;
+    border: 0;
+    outline: none;
+    border-radius: 5px; 
+}
+.forecast-search label{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 25px;
+}
+.forecast-search button{
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 33%;
+    padding: 10px 15px; 
+    width: 33%;
     border-radius: 5px;
     border: 0;
 }
@@ -89,10 +137,20 @@ h1 {
                     <button type="submit">Login</button>
                 </form>
                 <div class="not-user">
-                    <p>If you are not a user, click the button below to register</p>
+                    <p>If you are not a user, click the button below to register.</p>
                     <a href="/register"><button type="submit">Register</button></a>
                 </div>
             </div>
-        </body>
+            <div class="forecast-search">
+                <h1>Search</h1>
+                {% if error %}
+                <p style="color: rgb(0, 135, 245);">{{ error }}</p>
+                {% endif %}
+                <form method="POST" action="/">
+                    <input type="text" name="search" placeholder="Enter a city name or Zip Code">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+            </body>
         </html>
     </html>
