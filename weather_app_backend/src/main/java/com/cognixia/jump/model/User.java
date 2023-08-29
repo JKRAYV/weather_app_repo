@@ -15,16 +15,12 @@ public class User {
     @Id
     private String id;
 
-    @NotBlank
     private String firstName;
     
-    @NotBlank
     private String lastName;
 
-    @NotBlank
     private String username;
 
-    @NotBlank
     private String password;
 
     @Pattern(regexp="^.+@.+$")
@@ -32,15 +28,17 @@ public class User {
     
     private String address;
 
-    private List<Integer> favorites;
+    private List<Location> favorites;
 
     private Integer home;
+
+    private String profileImage;
 
 
     public User() {
     }
 
-    public User(String id, String firstName, String lastName, String username, String password, String email, String address, List<Integer> favorites, Integer home) {
+    public User(String id, String firstName, String lastName, String username, String password, String email, String address, List<Location> favorites, Integer home, String profileImage) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -50,6 +48,7 @@ public class User {
         this.address = address;
         this.favorites = favorites;
         this.home = home;
+        this.profileImage = profileImage;
     }
 
     public String getId() {
@@ -108,11 +107,11 @@ public class User {
         this.address = address;
     }
 
-    public List<Integer> getFavorites() {
+    public List<Location> getFavorites() {
         return this.favorites;
     }
 
-    public void setFavorites(List<Integer> favorites) {
+    public void setFavorites(List<Location> favorites) {
         this.favorites = favorites;
     }
 
@@ -122,6 +121,14 @@ public class User {
 
     public void setHome(Integer home) {
         this.home = home;
+    }
+
+    public String getProfileImage() {
+        return this.profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     public User id(String id) {
@@ -159,7 +166,7 @@ public class User {
         return this;
     }
 
-    public User favorites(List<Integer> favorites) {
+    public User favorites(List<Location> favorites) {
         setFavorites(favorites);
         return this;
     }
