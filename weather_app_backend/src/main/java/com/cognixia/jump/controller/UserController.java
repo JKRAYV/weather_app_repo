@@ -176,22 +176,17 @@ public class UserController {
         Optional<Location> removedFavorite = Optional.empty();
 
         for (int i = 0; i < list.size(); i++) {
-            System.out.println(list.get(i).getZipCode().getClass());
-            System.out.println(zipCode.getClass());
-            System.out.println(list.get(i).getZipCode());
-            System.out.println(zipCode);
-            if (list.get(i).getZipCode() == zipCode) {
+
+            if (list.get(i).getZipCode().intValue() == zipCode.intValue()) {
                 System.out.println("if succeeded");
                 removedFavorite = Optional.of(list.get(i));
                 list.remove(i);
-            } else {
-                System.out.println("if failed");
             }
         }
 
-        // if (removedFavorite.isEmpty()) {
-        //     throw new ResourceNotFoundException("Location");
-        // }
+        if (removedFavorite.isEmpty()) {
+            throw new ResourceNotFoundException("Location");
+        }
 
         User updatedUser = userRepo.save(foundUser.get());
 
