@@ -27,7 +27,7 @@ public class User {
 
     private List<Location> favorites;
 
-    private Integer home;
+    private Location home;
 
     private String password;
 
@@ -35,7 +35,7 @@ public class User {
     public User() {
     }
 
-    public User(String id, String first_name, String last_name, String username, String email, String profile_image, List<Location> favorites, Integer home, String password) {
+    public User(String id, String first_name, String last_name, String username, String email, String profile_image, List<Location> favorites, Location home, String password) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
@@ -103,11 +103,11 @@ public class User {
         this.favorites = favorites;
     }
 
-    public Integer getHome() {
+    public Location getHome() {
         return this.home;
     }
 
-    public void setHome(Integer home) {
+    public void setHome(Location home) {
         this.home = home;
     }
 
@@ -154,7 +154,7 @@ public class User {
         return this;
     }
 
-    public User home(Integer home) {
+    public User home(Location home) {
         setHome(home);
         return this;
     }
