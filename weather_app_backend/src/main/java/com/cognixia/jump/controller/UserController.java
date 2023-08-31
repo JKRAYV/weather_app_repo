@@ -105,9 +105,13 @@ public class UserController {
 
 
         Optional<User> existingUser = userRepo.findByUsername(user.getUsername());
+        Optional<User> existingEmail = userRepo.getByEmail(user.getEmail());
 
         if (existingUser.isPresent()) {
             throw new UserExistsException("User");
+        }
+        if (existingEmail.isPresent()) {
+            throw new UserExistsException("Email");
         }
         
         user.setFavorites(new ArrayList<>());
@@ -158,14 +162,21 @@ public class UserController {
             else
                 throw new UserExistsException("User");
         }
+        if (user.getEmail() != null) {
+            Optional<User> existingEmail = userRepo.getByEmail(user.getEmail());
+
+            if (existingEmail.isEmpty())
+                foundUser.get().setEmail(user.getEmail());
+            else
+                throw new UserExistsException("Email");
+        }
+
         if (user.getFirst_name() != null)
             foundUser.get().setFirst_name(user.getFirst_name());
         if (user.getLast_name() != null)
             foundUser.get().setLast_name(user.getLast_name());
         if (user.getPassword() != null)
             foundUser.get().setPassword(user.getPassword());
-        if (user.getEmail() != null)
-            foundUser.get().setEmail(user.getEmail());
         if (user.getHome() != null)
             foundUser.get().setHome(user.getHome());
         if (user.getProfile_image() != null)
