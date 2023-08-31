@@ -34,6 +34,7 @@ def login():
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
+
     if request.method == "POST":
         user_data = {
             "first_name": request.form.get("first_name"),
@@ -41,8 +42,10 @@ def register():
             "username": request.form.get("username"),
             "email": request.form.get("email"),
             "password": request.form.get("password"),
+            "profile_image": "user_bright.png",
             "favorites": [],
-            "home": ""
+            "home": {"zip": 10001,
+                    "town": "new york, ny"}
         }
         existing_user = mongo.db.users.find_one({"username": user_data["username"]})
         existing_email = mongo.db.users.find_one({"email": user_data["email"]})
@@ -52,9 +55,9 @@ def register():
         
         if existing_email:
             return render_template("register.html", error="Email already in use.")
-        mongo.db.Users.insert_one(user_data)
+        mongo.db.users.insert_one(user_data)
 
-        session['username'] = user_data["username"]
+        session['username'] = request.form.get("username")
         return redirect("/home")
     return render_template("register.html")
 
@@ -68,12 +71,12 @@ def home():
     
     if request.method == "POST":
         
-        town_or_zip = request.form.get("town_or_zip")
+        towndata = request.form.get("town_or_zip")
 
         if validate_location(user_data['home']['zip']) == True:
-            weather_data, towndata = forecast_data(town_or_zip)
+            weather_data, _ = forecast_data(towndata)
 
-            if weather_data and towndata is not None:
+            if weather_data is not None:
                 return render_template("userpage.html", user_data=user_data, weather_data=weather_data, towndata=towndata.to_dict())
             else:
                 return render_template("userpage.html", user_data=user_data, error="Could not fetch weather data.")
@@ -98,21 +101,19 @@ def modify_favorites():
 
     if action == "add":
         # Use pgeocode to get additional information
-        nomi = pgeocode.Nominatim('us')
-        town_or_zip = nomi.query_postal_code(zip_data)
-        raw_data, towndata = forecast_data(town_or_zip)
+        raw_data, towndata = forecast_data(str(zip_data))
         display_data = forecast(raw_data, towndata)
         print(towndata)
         if display_data is not None:
             if towndata.get('place_name') is not None and towndata.get('place_name').strip() != '' and towndata.get('state_code') is not None and towndata.get('state_code').strip() != '' and towndata.get('place_name') != 'NaN' and towndata.get('state_code') != 'NaN' and zip_data.isnumeric():
                 new_favorite = {
-                    "zip": zip_data,
-                    "town": f"{towndata['place_name']}, {towndata['state_code']}"
+                    "zip": int(zip_data),
+                    "town": str(f"{towndata.get('place_name')}, {towndata.get('state_code')}")
                 }
                 mongo.db.users.update_one({"username": username}, {"$addToSet": {"favorites": new_favorite}})
     elif action == "remove":
         # Remove from favorites
-        favorite_to_remove = {"zip": zip_data}
+        favorite_to_remove = {"zip": int(zip_data)}
         mongo.db.users.update_one({"username": username}, {"$pull": {"favorites": favorite_to_remove}})
     else:
         return redirect("/home"), 400
@@ -242,17 +243,11 @@ def forecast_data(town_or_zip): # returns forecast and city data as json.
         if isinstance(towndata, pd.Series):
             towndata = pd.DataFrame([towndata])
 
-        print(towndata.shape)
-
         # If there are multiple zip codes for the city
         if towndata.shape[0] >= 1:
             towndata = towndata.iloc[0]
         elif towndata.shape[0] < 1:
-            print("Invalid City String.")
             return None, None
-#---------------------------------------------------------------------------------------------
-    
-    print(towndata)
 
     if(not (towndata["place_name"] != towndata["place_name"])):
         
