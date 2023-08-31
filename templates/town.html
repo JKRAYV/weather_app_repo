@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Town Weather</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/styles.css') }}">
+</head>
+<body>
+    
+    <!-- Dashboard Bar -->
+    <div id="dashboard-bar">
+        {% if error %}
+        <span><h2 style = "color: red">Couldn't access weather data.</h2></span>
+        <form action="/town" method="get">
+            <input type="text" name="searched_town" placeholder="Search (City, State Initial)...">
+            <button type="submit">Search</button>
+        </form>
+            <button onclick="window.location.href='/home'">Home</button>
+        {% else %}
+        <span><h2>Weather for {{ towndata.place_name }}, {{ towndata.state_name }}</h2></span>
+            <form action="/town" method="get">
+                <input type="text" name="searched_town" placeholder="Search (City, State Initial)...">
+                    <!-- Dropdown for ZIP codes -->
+                <button type="submit">Search</button>
+            </form>
+                <button onclick="window.location.href='/home'">Home</button>
+        {% endif %}
+            
+    </div>
+
+    <div id="main-content">
+            <div id="forecast">
+                <div class="forecast-day">
+                    {% if error %}
+
+                    <p style="color: rgb(0, 135, 245);">{{ error }}</p>
+
+                    {% else %}
+                        {% for period in display_data.forecast %}
+                            
+                                <h3>{{ period.name }}</h3>
+                                {% if period.probabilityOfPrecipitation.value == None %}
+                                <p>Precipitation: 0%</p>
+                                {% else %}
+                                <p>Precipitation: {{ period.probabilityOfPrecipitation.value }} %</p>
+                                {%endif%}
+                                <p>Temperature: {{ period.temperature }} {{ period.temperatureUnit }}</p>
+                                <p>Wind: {{ period.windSpeed }} {{ period.windDirection }}</p>
+                                <p>Forecast: {{ period.detailedForecast }}</p>
+                            
+                        {% endfor %}
+
+                    {% endif %}
+                </div>
+            </div>
+    </div>
+
+    <script>
+        // Fetch ZIP codes when the user submits the search form
+        $('#search-form').submit(function(event) {
+            event.preventDefault();
+            
+            const cityState = $('#searched_town').val();
+            
+            $.post('/get_zip_codes', { city_state: cityState }, function(response) {
+                const zipCodes = response.zip_codes;
+                
+                // Clear the existing options
+                $('#zip_codes_dropdown').empty();
+                
+                // Populate the dropdown with ZIP codes
+                zipCodes.forEach(function(zipCode) {
+                    $('#zip_codes_dropdown').append(`<option value="${zipCode}">${zipCode}</option>`);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
