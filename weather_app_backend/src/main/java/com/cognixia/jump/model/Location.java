@@ -3,14 +3,25 @@ import java.util.Objects;
 
 public class Location {
     
+    private String town;
+
     private Integer zipCode;
 
 
     public Location() {
     }
 
-    public Location(Integer zipCode) {
+    public Location(String town, Integer zipCode) {
+        this.town = town;
         this.zipCode = zipCode;
+    }
+
+    public String getTown() {
+        return this.town;
+    }
+
+    public void setTown(String town) {
+        this.town = town;
     }
 
     public Integer getZipCode() {
@@ -19,6 +30,11 @@ public class Location {
 
     public void setZipCode(Integer zipCode) {
         this.zipCode = zipCode;
+    }
+
+    public Location town(String town) {
+        setTown(town);
+        return this;
     }
 
     public Location zipCode(Integer zipCode) {
@@ -34,13 +50,19 @@ public class Location {
             return false;
         }
         Location location = (Location) o;
-        return Objects.equals(zipCode, location.zipCode);
+        return Objects.equals(town, location.town) && Objects.equals(zipCode, location.zipCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(town, zipCode);
     }
 
     @Override
     public String toString() {
         return "{" +
-            " zipCode='" + getZipCode() + "'" +
+            " town='" + getTown() + "'" +
+            ", zipCode='" + getZipCode() + "'" +
             "}";
     }
     

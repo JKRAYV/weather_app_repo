@@ -122,23 +122,21 @@ public class UserController {
             throw new ResourceNotFoundException("User");
         }
 
-        if (user.getFirstName() != null)
-            foundUser.get().setFirstName(user.getFirstName());
-        if (user.getLastName() != null)
-            foundUser.get().setLastName(user.getLastName());
+        if (user.getFirst_name() != null)
+            foundUser.get().setFirst_name(user.getFirst_name());
+        if (user.getLast_name() != null)
+            foundUser.get().setLast_name(user.getLast_name());
         if (user.getUsername() != null)
             foundUser.get().setUsername(user.getUsername());
         if (user.getPassword() != null)
             foundUser.get().setPassword(user.getPassword());
         if (user.getEmail() != null)
             foundUser.get().setEmail(user.getEmail());
-        if (user.getAddress() != null)
-            foundUser.get().setAddress(user.getAddress());
         if (user.getHome() != null)
             foundUser.get().setHome(user.getHome());
-        if (user.getProfileImage() != null)
-            foundUser.get().setProfileImage(user.getProfileImage());
-        
+        if (user.getProfile_image() != null)
+            foundUser.get().setProfile_image(user.getProfile_image());
+
 
         User updatedUser = userRepo.save(foundUser.get());
 
