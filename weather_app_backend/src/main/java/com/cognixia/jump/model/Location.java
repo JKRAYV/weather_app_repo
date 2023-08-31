@@ -5,15 +5,15 @@ public class Location {
     
     private String town;
 
-    private Integer zipCode;
+    private Integer zip;
 
 
     public Location() {
     }
 
-    public Location(String town, Integer zipCode) {
+    public Location(String town, Integer zip) {
         this.town = town;
-        this.zipCode = zipCode;
+        this.zip = zip;
     }
 
     public String getTown() {
@@ -24,12 +24,12 @@ public class Location {
         this.town = town;
     }
 
-    public Integer getZipCode() {
-        return this.zipCode;
+    public Integer getZip() {
+        return this.zip;
     }
 
-    public void setZipCode(Integer zipCode) {
-        this.zipCode = zipCode;
+    public void setZip(Integer zip) {
+        this.zip = zip;
     }
 
     public Location town(String town) {
@@ -37,8 +37,8 @@ public class Location {
         return this;
     }
 
-    public Location zipCode(Integer zipCode) {
-        setZipCode(zipCode);
+    public Location zip(Integer zip) {
+        setZip(zip);
         return this;
     }
 
@@ -50,20 +50,21 @@ public class Location {
             return false;
         }
         Location location = (Location) o;
-        return Objects.equals(town, location.town) && Objects.equals(zipCode, location.zipCode);
+        return Objects.equals(town, location.town) && Objects.equals(zip, location.zip);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(town, zipCode);
+        return Objects.hash(town, zip);
     }
 
     @Override
     public String toString() {
         return "{" +
             " town='" + getTown() + "'" +
-            ", zipCode='" + getZipCode() + "'" +
+            ", zip='" + getZip() + "'" +
             "}";
     }
-    
+
+
 }

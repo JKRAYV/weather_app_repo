@@ -101,7 +101,7 @@ public class UserController {
         }
 
         Query query = new Query(Criteria.where("_id").is(id));
-        Update update = new Update().push("favorites", location.getZipCode());
+        Update update = new Update().push("favorites", location);
 
         mongoTemplate.updateFirst(query, update, User.class);
 
@@ -162,7 +162,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{id}/{zipCode}")
-    public ResponseEntity<List<Location>> removeFavorite(@PathVariable String id, @PathVariable Integer zipCode) throws Exception {
+    public ResponseEntity<User> removeFavorite(@PathVariable String id, @PathVariable Integer zipCode) throws Exception {
 
         Optional<User> foundUser = userRepo.findById(id);
 
@@ -175,7 +175,7 @@ public class UserController {
 
         for (int i = 0; i < list.size(); i++) {
 
-            if (list.get(i).getZipCode().intValue() == zipCode.intValue()) {
+            if (list.get(i).getZip().intValue() == zipCode.intValue()) {
                 System.out.println("if succeeded");
                 removedFavorite = Optional.of(list.get(i));
                 list.remove(i);
@@ -188,6 +188,6 @@ public class UserController {
 
         User updatedUser = userRepo.save(foundUser.get());
 
-        return ResponseEntity.status(200).body(updatedUser.getFavorites());
+        return ResponseEntity.status(200).body(updatedUser);
     }
 }

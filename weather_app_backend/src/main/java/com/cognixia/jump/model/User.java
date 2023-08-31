@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.Pattern;
 import java.util.Objects;
 
-@Document
+@Document("Users")
 public class User {
 
     @Id
