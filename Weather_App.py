@@ -101,21 +101,19 @@ def modify_favorites():
 
     if action == "add":
         # Use pgeocode to get additional information
-        nomi = pgeocode.Nominatim('us')
-        town_or_zip = nomi.query_postal_code(zip_data)
-        raw_data, towndata = forecast_data(town_or_zip)
+        raw_data, towndata = forecast_data(str(zip_data))
         display_data = forecast(raw_data, towndata)
         print(towndata)
         if display_data is not None:
             if towndata.get('place_name') is not None and towndata.get('place_name').strip() != '' and towndata.get('state_code') is not None and towndata.get('state_code').strip() != '' and towndata.get('place_name') != 'NaN' and towndata.get('state_code') != 'NaN' and zip_data.isnumeric():
                 new_favorite = {
-                    "zip": zip_data,
-                    "town": f"{towndata['place_name']}, {towndata['state_code']}"
+                    "zip": int(zip_data),
+                    "town": str(f"{towndata.get('place_name')}, {towndata.get('state_code')}")
                 }
                 mongo.db.users.update_one({"username": username}, {"$addToSet": {"favorites": new_favorite}})
     elif action == "remove":
         # Remove from favorites
-        favorite_to_remove = {"zip": zip_data}
+        favorite_to_remove = {"zip": int(zip_data)}
         mongo.db.users.update_one({"username": username}, {"$pull": {"favorites": favorite_to_remove}})
     else:
         return redirect("/home"), 400
@@ -245,17 +243,11 @@ def forecast_data(town_or_zip): # returns forecast and city data as json.
         if isinstance(towndata, pd.Series):
             towndata = pd.DataFrame([towndata])
 
-        print(towndata.shape)
-
         # If there are multiple zip codes for the city
         if towndata.shape[0] >= 1:
             towndata = towndata.iloc[0]
         elif towndata.shape[0] < 1:
-            print("Invalid City String.")
             return None, None
-#---------------------------------------------------------------------------------------------
-    
-    print(towndata)
 
     if(not (towndata["place_name"] != towndata["place_name"])):
         
