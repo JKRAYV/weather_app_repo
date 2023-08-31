@@ -34,6 +34,7 @@ def login():
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
+
     if request.method == "POST":
         user_data = {
             "first_name": request.form.get("first_name"),
@@ -41,8 +42,10 @@ def register():
             "username": request.form.get("username"),
             "email": request.form.get("email"),
             "password": request.form.get("password"),
+            "profile_image": "user_bright.png",
             "favorites": [],
-            "home": ""
+            "home": {"zip": 10001,
+                    "town": "new york, ny"}
         }
         existing_user = mongo.db.users.find_one({"username": user_data["username"]})
         existing_email = mongo.db.users.find_one({"email": user_data["email"]})
@@ -52,9 +55,9 @@ def register():
         
         if existing_email:
             return render_template("register.html", error="Email already in use.")
-        mongo.db.Users.insert_one(user_data)
+        mongo.db.users.insert_one(user_data)
 
-        session['username'] = user_data["username"]
+        session['username'] = request.form.get("username")
         return redirect("/home")
     return render_template("register.html")
 
@@ -68,12 +71,12 @@ def home():
     
     if request.method == "POST":
         
-        town_or_zip = request.form.get("town_or_zip")
+        towndata = request.form.get("town_or_zip")
 
         if validate_location(user_data['home']['zip']) == True:
-            weather_data, towndata = forecast_data(town_or_zip)
+            weather_data, _ = forecast_data(towndata)
 
-            if weather_data and towndata is not None:
+            if weather_data is not None:
                 return render_template("userpage.html", user_data=user_data, weather_data=weather_data, towndata=towndata.to_dict())
             else:
                 return render_template("userpage.html", user_data=user_data, error="Could not fetch weather data.")
