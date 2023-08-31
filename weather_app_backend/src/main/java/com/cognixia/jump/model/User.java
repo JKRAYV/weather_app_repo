@@ -5,50 +5,46 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import java.util.Objects;
 
-@Document
+@Document("Users")
 public class User {
 
     @Id
     private String id;
 
-    private String firstName;
+    private String first_name;
     
-    private String lastName;
+    private String last_name;
 
     private String username;
 
-    private String password;
-
     @Pattern(regexp="^.+@.+$")
     private String email;
-    
-    private String address;
+
+    private String profile_image;
 
     private List<Location> favorites;
 
-    private Integer home;
+    private Location home;
 
-    private String profileImage;
+    private String password;
 
 
     public User() {
     }
 
-    public User(String id, String firstName, String lastName, String username, String password, String email, String address, List<Location> favorites, Integer home, String profileImage) {
+    public User(String id, String first_name, String last_name, String username, String email, String profile_image, List<Location> favorites, Location home, String password) {
         this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.first_name = first_name;
+        this.last_name = last_name;
         this.username = username;
-        this.password = password;
         this.email = email;
-        this.address = address;
+        this.profile_image = profile_image;
         this.favorites = favorites;
         this.home = home;
-        this.profileImage = profileImage;
+        this.password = password;
     }
 
     public String getId() {
@@ -59,20 +55,20 @@ public class User {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return this.firstName;
+    public String getFirst_name() {
+        return this.first_name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
     }
 
-    public String getLastName() {
-        return this.lastName;
+    public String getLast_name() {
+        return this.last_name;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
     }
 
     public String getUsername() {
@@ -83,14 +79,6 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return this.password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getEmail() {
         return this.email;
     }
@@ -99,12 +87,12 @@ public class User {
         this.email = email;
     }
 
-    public String getAddress() {
-        return this.address;
+    public String getProfile_image() {
+        return this.profile_image;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setProfile_image(String profile_image) {
+        this.profile_image = profile_image;
     }
 
     public List<Location> getFavorites() {
@@ -115,20 +103,20 @@ public class User {
         this.favorites = favorites;
     }
 
-    public Integer getHome() {
+    public Location getHome() {
         return this.home;
     }
 
-    public void setHome(Integer home) {
+    public void setHome(Location home) {
         this.home = home;
     }
 
-    public String getProfileImage() {
-        return this.profileImage;
+    public String getPassword() {
+        return this.password;
     }
 
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public User id(String id) {
@@ -136,13 +124,13 @@ public class User {
         return this;
     }
 
-    public User firstName(String firstName) {
-        setFirstName(firstName);
+    public User first_name(String first_name) {
+        setFirst_name(first_name);
         return this;
     }
 
-    public User lastName(String lastName) {
-        setLastName(lastName);
+    public User last_name(String last_name) {
+        setLast_name(last_name);
         return this;
     }
 
@@ -151,18 +139,13 @@ public class User {
         return this;
     }
 
-    public User password(String password) {
-        setPassword(password);
-        return this;
-    }
-
     public User email(String email) {
         setEmail(email);
         return this;
     }
 
-    public User address(String address) {
-        setAddress(address);
+    public User profile_image(String profile_image) {
+        setProfile_image(profile_image);
         return this;
     }
 
@@ -171,8 +154,13 @@ public class User {
         return this;
     }
 
-    public User home(Integer home) {
+    public User home(Location home) {
         setHome(home);
+        return this;
+    }
+
+    public User password(String password) {
+        setPassword(password);
         return this;
     }
 
@@ -184,27 +172,28 @@ public class User {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(address, user.address) && Objects.equals(favorites, user.favorites) && Objects.equals(home, user.home);
+        return Objects.equals(id, user.id) && Objects.equals(first_name, user.first_name) && Objects.equals(last_name, user.last_name) && Objects.equals(username, user.username) && Objects.equals(email, user.email) && Objects.equals(profile_image, user.profile_image) && Objects.equals(favorites, user.favorites) && Objects.equals(home, user.home) && Objects.equals(password, user.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, username, password, email, address, favorites, home);
+        return Objects.hash(id, first_name, last_name, username, email, profile_image, favorites, home, password);
     }
 
     @Override
     public String toString() {
         return "{" +
             " id='" + getId() + "'" +
-            ", firstName='" + getFirstName() + "'" +
-            ", lastName='" + getLastName() + "'" +
+            ", first_name='" + getFirst_name() + "'" +
+            ", last_name='" + getLast_name() + "'" +
             ", username='" + getUsername() + "'" +
-            ", password='" + getPassword() + "'" +
             ", email='" + getEmail() + "'" +
-            ", address='" + getAddress() + "'" +
+            ", profile_image='" + getProfile_image() + "'" +
             ", favorites='" + getFavorites() + "'" +
             ", home='" + getHome() + "'" +
+            ", password='" + getPassword() + "'" +
             "}";
     }
+
 
 }
