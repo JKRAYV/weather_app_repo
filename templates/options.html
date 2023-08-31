@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Edit Profile</title>
+</head>
+
+<body>
+    <div class="profile">
+        <h1>Edit Profile</h1> 
+    
+
+        <form action="/edit_profile" method="POST">
+            {% if name_error %}
+            <label for="username">Change username:</label><br>
+            <p style="color: rgb(0, 135, 245);">{{ name_error }}</p>
+            <input type="text" id="username" name="username" value="{{ user_data.username }}" required><br>
+            {% else %}
+            <label for="username">Change username:</label><br>
+            <input type="text" id="username" name="username" value="{{ user_data.username }}" required><br>
+            {% endif %}
+
+            {% if password_error %}
+            <label for="password">Change password:</label><br>
+            <p style="color: rgb(0, 135, 245);">{{ password_error }}</p>
+            <input type="password" id="password" name="password" value="{{ user_data.password }}" required><br>
+            {% else %}
+            <label for="password">Change password:</label><br>
+            <input type="password" id="password" name="password" value="{{ user_data.password }}" required><br>
+            {% endif %}
+
+            {% if home_error %}
+            <label for="home">Change home(Enter Zipcode):</label><br>
+            <p style="color: rgb(0, 135, 245);">{{ home_error }}</p>
+            <input type="text" id="home town" name="home" value="{{ user_data.home.zip }}" required><br>
+            {% else %}
+            <label for="home">Change home(Enter Zipcode):</label><br>
+            <input type="text" id="home town" name="home" value="{{ user_data.home.zip }}" required><br>
+            {% endif %}
+
+            {% if avatar_error %}
+            <label for="avatar">Select Avatar:</label><br>
+            <p style="color: rgb(0, 135, 245);">{{ avatar_error }}</p>
+            {% for image in avatar %}
+                <input type="radio" id="{{ image }}" name="avatar" value="{{ image }}" required>
+                <label for="{{ image }}"><div style="background-color: rgb(38, 48, 109); width: 60px; height: 60px; display: inline-block; vertical-align: middle; line-height: 60px; text-align: center;"><img src="{{ url_for('static', filename='profileimages/' + image) }}" width="50" height="50" style="vertical-align: middle;"></div></label><br>
+            {% endfor %}
+            {% else %}
+            <label for="avatar">Select Avatar:</label><br>
+            {% for image in avatar %}
+                <input type="radio" id="{{ image }}" name="avatar" value="{{ image }}" required>
+                <label for="{{ image }}"><div style="background-color: rgb(38, 48, 109); width: 60px; height: 60px; display: inline-block; vertical-align: middle; line-height: 60px; text-align: center;"><img src="{{ url_for('static', filename='profileimages/' + image) }}" width="50" height="50" style="vertical-align: middle;"></div></label><br>
+            {% endfor %}
+            {% endif %}
+            <br>
+            <input type="submit" value="Update Profile">
+        </form>
+
+        <a href="/home"><button>Return Home</button></a>
+    </div>
+</body>
+</html>

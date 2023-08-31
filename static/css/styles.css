@@ -7,7 +7,14 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    padding: 0; 
+    padding: 0;
+    background-attachment: fixed;
+    flex-direction: column; 
+}
+#main-content {
+    padding-top: 7%;  /* This should be equal to or greater than the height of your dashboard bar */
+    padding-bottom: 60px;
+    overflow: auto;
 }
 h1 {
     margin: 10;
@@ -21,6 +28,13 @@ h1 {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 45px;
 }
+h2 {
+    z-index: 2; 
+    color: black;
+    margin: 0;  
+    padding: 10px;  
+    background-color: white;  
+}
 p {
     margin: 0px 5%;
     display: flex;
@@ -28,7 +42,33 @@ p {
     align-items: center;
 }
 
+#dashboard-bar {
+    position: fixed;  /* Fixed position */
+    top: 0;  /* Stick to the top */
+    left: 0;  /* Stick to the left */
+    width: 100%;  /* Full width */
+    background-color: #333;  /* Dark background */
+    color: white;  /* White text */
+    padding-top: 1%;  /* Some padding */
+    padding-bottom: 1%;
+    z-index: 1000;  /* High z-index to appear above all other elements */
+    display: flex;  /* Flexbox layout */
+    justify-content: space-between;  /* Space out the elements */
+    align-items: center;  /* Center items vertically */
+    flex-shrink: 0;
+}
 
+#dashboard-bar button {
+    background-color: #444;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+#dashboard-bar button:hover {
+    background-color: #555;
+}
 .login-header{
     background: linear-gradient(#ffffff, #e2eff7, #a2c8f3, #22c0ff);
     color: #fff;
@@ -159,8 +199,6 @@ p {
     border-radius: 5px;
     border: 0;
 }
-
-
 .user-header{
     background-color: #889aca75;
     margin: 10px 0 20px;
@@ -172,31 +210,63 @@ p {
     height:100%;
     max-height: 800px;
 }
-.home-forecast h1{
-    font-family: Arial, Impact,;
+
+.forecast-day {
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 16px;
+    color: black;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    overflow: auto; 
+}
+.forecast-day h3 {
+    background-color: #889aca75;
+    border: 1px solid #ccc;
+    padding: 10px;
+    padding-left: 50%;
+    padding-right: 50%;
+    height: 30%;
+    font-size: 16px;
+    color: black;
+    box-sizing: border-box;
+}
+.home-forecast{
     font-size: 20px; 
-    width: 40%;
-    height:60%;
+    width: 60%;
+    height:40%;
+    margin-top: 3%;
     margin: 5% 5%;
     padding: 0; 
 }
-.favs-list h1{
+.home-forecast h1{
     font-family: Arial, Impact,;
     font-size: 20px; 
-    width: 40%;
-    height:60%;
-    margin: -8% 55%;
+    width: 60%;
+    height:40%;
+    margin: 5% 5%;
     padding: 0; 
+}
+#favorites {
+    background-color: #889aca75;
+    border: 1px solid #ccc;
+    height: 20%;
+    padding: 15px;
+    margin: 3%;
+    box-sizing: border-box;
 }
 .options {
     font-family: Arial, Impact,;
     font-size: 20px; 
     width: 40%;
-    margin-top: 60%;
-    margin-left: 80%;
+    margin-top: 5%;  
+    margin-left: 55%;  
     text-align: center;
     max-height: 300px;
-    height:100%;
+    height: 100%;
 }
 
 .options h1{
@@ -210,3 +280,45 @@ p {
     margin-right: 59%;
 }
 
+
+.profile {
+    background-color: #889aca75;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.profile h1 {
+    background-color: #889aca75;
+    margin: 10px 0 20px;
+    padding-top: 10px;
+    padding-bottom:10px;
+    text-align: center;
+    align-items: center;
+    font-size: 40px;
+    }
+.profile label {
+    color: rgb(0, 135, 245);
+    display: block;
+    font-weight: bold;
+}
+
+.profile input {
+    font-size: 20px;
+    margin-bottom: 10px;
+    background-color: white;
+    text-align: center;
+    align-items: center;
+    font-size:20px;
+}    
+   
+.profile button{
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 10%;
+    padding: 10px 15px; 
+    text-align: center;
+    align-items: center;
+    width: 75%;
+    border-radius: 5px;
+    border: 0;
+}
