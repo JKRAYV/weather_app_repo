@@ -25,6 +25,7 @@
             <!-- Home Weather Section -->
             <div id="forecast">
                 <h2>Home: {{ home_forecast.city }}, {{ home_forecast.state }}</h2>
+                
                 <!-- Use Jinja2 to loop through the home_forecast and display the details -->
                 <div class="forecast-day">
                     {% for period in home_forecast.forecast %}
@@ -44,28 +45,47 @@
             </div>
 
         <!-- Favorites Section -->
-<div id="favorites">
-    <h2>Favorites</h2>
-    <span>  <form action="/modify_favorites" method="post">
-                <input type="hidden" name="action" value="add">
-                <input type="text" name="zip_data" placeholder="Enter ZIP code to add...">
-                <button type="submit">Add to Favorites</button>
-            </form>
-        <ul>
-            {% for favorite in user_data.favorites %}
-                <li>
-                    <a href="/town?searched_town={{favorite.zip}}" type="submit">{{ favorite.town }}</a>
-                    <!-- Remove from Favorites Form -->
-                    <form action="/modify_favorites" method="post" style="display:inline;">
-                        <input type="hidden" name="action" value="remove">
-                        <input type="hidden" name="zip_data" value="{{ favorite.zip }}">
-                        <button type="submit">Remove</button>
+        <div id="favorites">
+            <h2>Favorites</h2>
+            <span>  <form action="/modify_favorites" method="post">
+                        <input type="hidden" name="action" value="add">
+                        <input type="text" name="zip_data" placeholder="Enter ZIP code to add...">
+                        <button type="submit">Add to Favorites</button>
                     </form>
-                </li>
-            {% endfor %}
-        </ul>
-    </span>
-</div>
+                <ul>
+                    {% for favorite in user_data.favorites %}
+                        <li>
+                            <a href="/town?searched_town={{favorite.zip}}" type="submit">{{ favorite.town }}</a>
+                            <!-- Remove from Favorites Form -->
+                            <form action="/modify_favorites" method="post" style="display:inline;">
+                                <input type="hidden" name="action" value="remove">
+                                <input type="hidden" name="zip_data" value="{{ favorite.zip }}">
+                                <button type="submit">Remove</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </span>
+        </div>
+        <!-- Alerts Box -->
+        <div id="alerts-box">
+            <h2>Weather Alerts</h2>
+            {% if home_forecast.alert %}
+                {% if home_forecast.alert is string and home_forecast.alert == 'No alerts available' %}
+                    <p>No alerts available.</p>
+                {% else %}
+                    {% for alert in home_forecast.alert.features %}
+                        <div class="alert-item">
+                            <h3>{{ alert.properties.event }} {{ alert.properties.messageType }}</h3>
+                            <p>{{ alert.properties.headline }}</p>
+                            <p>Expires: {{ alert.properties.expires }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                <p>No alert data available.</p>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>

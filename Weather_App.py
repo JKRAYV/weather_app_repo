@@ -7,6 +7,7 @@ import requests
 import pgeocode
 import folium
 import math
+import json
 
 app = Flask(__name__)
 
@@ -328,7 +329,7 @@ def forecast_data(town_or_zip): # returns forecast and city data as json.
 def forecast(forecast_data, towndata):
     # Initialize an empty dictionary to hold the processed forecast
     processed_forecast = {}
-    
+    print(towndata)
     # Check if forecast_data contains the expected keys
     if forecast_data and 'properties' in forecast_data and 'periods' in forecast_data['properties']:
         forecast_periods = forecast_data['properties']['periods']
@@ -339,7 +340,21 @@ def forecast(forecast_data, towndata):
         
         # Process the first 14 periods (7 days, assuming 2 periods per day)
         processed_forecast['forecast'] = forecast_periods[:14]
+
+        # Fetch alert data (assuming an API endpoint exists to get alert data for a specific latitude and longitude)
+        latitude = towndata['latitude']
+        longitude = towndata['longitude']
+        alert_url = f"https://api.weather.gov/alerts/active?point={latitude},{longitude}"  # Replace with actual alert API endpoint
         
+        alert_response = requests.get(alert_url)
+        
+        if alert_response.status_code == 200:
+            alert_data = alert_response.json()
+            # Process alert data (if needed)
+            # For simplicity, adding raw alert_data. You may need to extract specific fields.
+            processed_forecast['alert'] = alert_data
+            print(processed_forecast['alert'])
+            print(json.dumps(processed_forecast['alert'], indent=1))
         return processed_forecast
     else:
         return None

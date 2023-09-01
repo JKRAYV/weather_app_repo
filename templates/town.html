@@ -53,6 +53,26 @@
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Alerts Box -->
+            <div id="alerts-box">
+                <h2>Weather Alerts</h2>
+                {% if display_data.alert %}
+                    {% if display_data.alert is string and display_data.alert == 'No alerts available' %}
+                        <p>No alerts available.</p>
+                    {% else %}
+                        {% for alert in display_data.alert.features %}
+                            <div class="alert-item">
+                                <h3>{{ alert.properties.event }} {{ alert.properties.messageType }}</h3>
+                                <p>{{ alert.properties.headline }}</p>
+                                <p>Expires: {{ alert.properties.expires }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    <p>No alert data available.</p>
+                {% endif %}
+            </div>
     </div>
 
     <script>

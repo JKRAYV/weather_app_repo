@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.status(200).body(users);
     }
     
-    @GetMapping("user/{id}")
+    @GetMapping("/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) throws Exception {
 
         Optional<User> foundUser = userRepo.findById(id);
@@ -61,7 +61,7 @@ public class UserController {
         return ResponseEntity.status(200).body(foundUser.get());
     }
 
-    @GetMapping("user/{username}")
+    @GetMapping("/user/name/{username}")
     public ResponseEntity<User> getUserByName(@PathVariable String username) throws Exception {
 
         Optional<User> foundUser = userRepo.findByUsername(username);
@@ -78,6 +78,8 @@ public class UserController {
 
     @PostMapping("/user/auth")
     public ResponseEntity<User> getUserByCredentials(@Valid @RequestBody User user) throws Exception {
+
+        System.out.println(user.getUsername() + " " +user.getPassword());
 
         Optional<User> validUser = userRepo.getByCredentials(user.getUsername(), user.getPassword());
 
