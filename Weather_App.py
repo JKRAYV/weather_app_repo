@@ -23,18 +23,27 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        user = mongo.db.users.find_one({"username": username})
-
-        if user and user["password"] == password:
+        
+        # Make a POST request to the Java Spring Boot backend
+        response = requests.post('http://localhost:8080/api/user/auth', json={
+            'username': username,
+            'password': password
+        })
+        
+        if response.status_code == 200:
+            user_data = response.json()
             session['username'] = username
+            session['user_data'] = user_data
             return redirect("/home")
-        return render_template("login.html", error="Invalid username or password")
+        elif response.status_code == 404:
+            return render_template("login.html", error="User not found")
+        else:
+            return render_template("login.html", error="Invalid username or password")
     
     return render_template("login.html")
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
-
     if request.method == "POST":
         user_data = {
             "first_name": request.form.get("first_name"),
@@ -42,45 +51,58 @@ def register():
             "username": request.form.get("username"),
             "email": request.form.get("email"),
             "password": request.form.get("password"),
-            "profile_image": "user_bright.png",
-            "favorites": [],
-            "home": {"zip": 10001,
-                    "town": "new york, ny"}
         }
-        existing_user = mongo.db.users.find_one({"username": user_data["username"]})
-        existing_email = mongo.db.users.find_one({"email": user_data["email"]})
 
-        if existing_user:
+        # Check for existing user by making a GET request to the Java backend
+        response = requests.get(f'http://localhost:8080/api/user/{user_data["username"]}')
+        
+        if response.status_code == 200:
             return render_template("register.html", error="Username already taken.")
         
-        if existing_email:
-            return render_template("register.html", error="Email already in use.")
-        mongo.db.users.insert_one(user_data)
-
-        session['username'] = request.form.get("username")
-        return redirect("/home")
+        # Create new user by making a POST request to the Java backend
+        response = requests.post('http://localhost:8080/api/user', json=user_data)
+        
+        if response.status_code == 201:
+            session['username'] = request.form.get("username")
+            return redirect("/home")
+        else:
+            return render_template("register.html", error="Could not register user. Try again.")
     return render_template("register.html")
 
 @app.route('/home', methods=["GET","POST","PUT"])
 def home():
     if 'username' not in session:
         return redirect("/")
-    logged_in_username = session['username']
-    user_data = mongo.db.users.find_one({"username": logged_in_username})
-    home_forecast = {"error": "Home ZIP code not set."} if 'home' not in user_data else forecast(*forecast_data(user_data['home']['zip']))
     
+    # Fetch the user data directly from the Java backend
+    response = requests.get(f'http://localhost:8080/api/user/name/{session["username"]}')
+    if response.status_code != 200:
+        return redirect("/"), 401
+    user_data = response.json()
+
+    # Existing logic for weather data
+    home_forecast = {"error": "Home ZIP code not set."} if 'home' not in user_data else forecast(*forecast_data(user_data['home']['zip']))
+
     if request.method == "POST":
-        
         towndata = request.form.get("town_or_zip")
 
-        if validate_location(user_data['home']['zip']) == True:
+        if validate_location(towndata):
             weather_data, _ = forecast_data(towndata)
 
             if weather_data is not None:
-                return render_template("userpage.html", user_data=user_data, weather_data=weather_data, towndata=towndata.to_dict())
+                update_response = requests.patch(f'http://localhost:8080/api/user/{session["username"]}', json={
+                    'home': {'zip': towndata}
+                })
+                
+                if update_response.status_code == 200:
+                    updated_user_data = update_response.json()
+                    session['user_data'] = updated_user_data
+                    return render_template("userpage.html", user_data=updated_user_data, weather_data=weather_data, towndata=towndata)
+                else:
+                    return render_template("userpage.html", user_data=user_data, weather_data=weather_data, error="Could not update home location.")
             else:
                 return render_template("userpage.html", user_data=user_data, error="Could not fetch weather data.")
-    
+
     return render_template("userpage.html", user_data=user_data, home_forecast=home_forecast)
 
 @app.route('/modify_favorites', methods=["POST"])
@@ -89,34 +111,39 @@ def modify_favorites():
         return redirect("/"), 401
     
     username = session['username']
-    user_data = mongo.db.users.find_one({"username": username})
 
-    # Check if the user exists in the database
-    if not user_data:
-        return redirect("/"), 404
-
-    # Retrieve data from client form
     action = request.form.get("action")
     zip_data = request.form.get("zip_data")
 
     if action == "add":
-        # Use pgeocode to get additional information
         raw_data, towndata = forecast_data(str(zip_data))
         display_data = forecast(raw_data, towndata)
-        print(towndata)
+        
         if display_data is not None:
-            if towndata.get('place_name') is not None and towndata.get('place_name').strip() != '' and towndata.get('state_code') is not None and towndata.get('state_code').strip() != '' and towndata.get('place_name') != 'NaN' and towndata.get('state_code') != 'NaN' and zip_data.isnumeric():
-                new_favorite = {
-                    "zip": int(zip_data),
-                    "town": str(f"{towndata.get('place_name')}, {towndata.get('state_code')}")
-                }
-                mongo.db.users.update_one({"username": username}, {"$addToSet": {"favorites": new_favorite}})
+            new_favorite = {
+                "zip": int(zip_data),
+                "town": f"{towndata.get('place_name')}, {towndata.get('state_code')}"
+            }
+            
+            update_response = requests.post(f'http://localhost:8080/api/user/location/{username}', json=new_favorite)
+            
+            if update_response.status_code != 200:
+                return redirect("/home"), 400
+
     elif action == "remove":
-        # Remove from favorites
-        favorite_to_remove = {"zip": int(zip_data)}
-        mongo.db.users.update_one({"username": username}, {"$pull": {"favorites": favorite_to_remove}})
+        update_response = requests.delete(f'http://localhost:8080/api/user/{username}/{zip_data}')
+        
+        if update_response.status_code != 200:
+            return redirect("/home"), 400
+
     else:
         return redirect("/home"), 400
+
+    # Re-fetch the updated user data from the Java backend
+    response = requests.get(f'http://localhost:8080/api/user/{username}')
+    if response.status_code == 200:
+        updated_user_data = response.json()
+        session['user_data'] = updated_user_data  # Store the updated user data in the session
 
     return redirect("/home")
 
@@ -126,56 +153,73 @@ def edit_profile():
         return redirect("/")
     
     username = session['username']
-    user_data = mongo.db.users.find_one({"username": username})
+    user_data = session.get('user_data')
     avatar = os.listdir('static/profileimages')
 
     if request.method == 'POST':
-        if 'delete' in request.form:
-            mongo.db.users.delete_one({"username": username})
-            session.pop('username', None)
+        action = request.form.get("action")
+
+        if action == "delete":
+            # Delete user by making a DELETE request to the Java backend
+            delete_response = requests.delete(f'http://localhost:8080/api/user/{username}')
+            if delete_response.status_code == 200:
+                session.pop('username', None)
+                session.pop('user_data', None)
+                return redirect("/")
+            else:
+                return render_template("options.html", user_data=user_data, avatar=avatar, error="Could not delete user.")
+        
+        elif action == "update profile":
+            # Logic for updating all profile details except username
+            new_home = request.form.get("home")
+            if validate_location(new_home):
+                weather_data, towndata = forecast_data(new_home)
+                display_data = forecast(weather_data, towndata)
+
+                if display_data is not None:
+                    structured_home = {
+                        "zip": towndata['postal_code'],
+                        "town": f"{towndata['place_name']}, {towndata['state_code']}"
+                    }
+                    
+                    updated_user_data = {
+                        "password": request.form.get("password"),
+                        "home": structured_home,
+                        "profile_image": request.form.get("avatar")
+                    }
+
+                    update_response = requests.patch(f'http://localhost:8080/api/user/{username}', json=updated_user_data)
+                    
+                    if update_response.status_code == 200:
+                        updated_user_data = update_response.json()
+                        session['user_data'] = updated_user_data
+                        return redirect("/home")
+                    else:
+                        return render_template("options.html", user_data=user_data, avatar=avatar, error="Could not update user.")
+                else:
+                    return render_template("options.html", user_data=user_data, avatar=avatar, home_error="Could not fetch weather data for new home.")
+            else:
+                return render_template("options.html", user_data=user_data, avatar=avatar, home_error="Invalid new home location.")
+        
+        elif action  == "update username":
+            # Logic for updating only the username
+            new_username = request.form.get("new_username")
+            update_response = requests.patch(f'http://localhost:8080/api/user/{username}', json={"username": new_username})
+            
+            if update_response.status_code == 200:
+                updated_user_data = update_response.json()
+                session['user_data'] = updated_user_data
+                session['username'] = new_username  # update the username in the session
+                return redirect("/home")
+            else:
+                return render_template("options.html", user_data=user_data, avatar=avatar, name_error="Username already exists or could not be updated.")
+
+        elif action == "logout":
+            session['username'] = None
             return redirect("/")
-        
-        new_username = request.form.get("username")
-        new_password = request.form.get("password")
-        new_home = request.form.get("home")
-        new_avatar = request.form.get("avatar")
-        try:
-            if new_username == username or new_username != mongo.db.users.find_one({"username": new_username})['username']:
-                new_username == new_username
-            else:
-                return render_template("options.html", user_data=user_data, avatar=avatar, name_error = "Invalid username")
-        except:
-            new_username = new_username
-        
-        if new_password == user_data['password'] or new_password != '':
-            new_password == new_password
-        else:
-            return render_template("options.html", user_data=user_data, avatar=avatar, password_error = "Invalid Password")
-        
-        if validate_location(new_home):
-            weatherdata, towndata = forecast_data(new_home)
-            display_data = forecast(weatherdata, towndata)
-
-            if display_data is not None:
-                new_home_zip = towndata['postal_code']
-                new_home_name = towndata['place_name']
-                new_home_state = towndata['state_code']
-                structured_home = {"zip": new_home_zip,
-                                   "town": f"{new_home_name}, {new_home_state}"
-                                   }
-            else:
-                return render_template("options.html", user_data=user_data, avatar=avatar, home_error = "Invalid Zipcode")
-        else:
-                return render_template("options.html", user_data=user_data, avatar=avatar, home_error = "Invalid Town")
-
-        if new_avatar != new_avatar:
-            return render_template("options.html", user_data=user_data, avatar=avatar, avatar_error = "Please chose an avatar")
-
-        mongo.db.users.update_one({"username": username}, {"$set": {"username": new_username, "home": structured_home, "profile_image": new_avatar}})
-        session['username'] = new_username
-        return redirect("/home")
 
     return render_template("options.html", user_data=user_data, avatar=avatar)
+
 
 @app.route('/town', methods=['GET'])
 def town():
@@ -190,7 +234,6 @@ def town():
     
     return render_template("town.html", display_data="Nothing to display.", towndata="Nothing to display.", error="Invalid town or zip.")
 
-#--Temporary code--
 
 def validate_location(town_or_zip):
     nomi = pgeocode.Nominatim('us')
@@ -300,7 +343,6 @@ def forecast(forecast_data, towndata):
         return processed_forecast
     else:
         return None
-#--Temporary code--
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
