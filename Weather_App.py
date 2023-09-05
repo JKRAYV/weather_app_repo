@@ -10,17 +10,11 @@ import math
 import json
 
 app = Flask(__name__)
-
-try:
-    app = Flask(__name__)
-    app.config["MONGO_URI"] = "mongodb://localhost:27017/mock_Weather"
-    mongo = PyMongo(app)
-except:
-        print("ERROR- cannot connect to db")
+app.secret_key = os.urandom(24)
 
 @app.route('/', methods=["GET", "POST"]) #root/login page----------------------------------
 def login():
-    app.secret_key = os.urandom(24)
+    
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -46,6 +40,7 @@ def login():
 @app.route('/register', methods=["GET", "POST"]) #register page----------------------------------
 def register():
     if request.method == "POST":
+
         user_data = {
             "first_name": request.form.get("first_name"),
             "last_name": request.form.get("last_name"),
@@ -62,10 +57,11 @@ def register():
         
         # Create new user by making a POST request to the Java backend
         response = requests.post('http://localhost:8080/api/user', json=user_data)
+
+        user_data =  requests.get(f'http://localhost:8080/api/user/{request.form.get("username")}')
         
         if response.status_code == 201:
-            session['username'] = request.form.get("username")
-            return redirect("/home")
+            return redirect("/")
         else:
             return render_template("register.html", error="Could not register user. Try again.")
     return render_template("register.html")
@@ -75,16 +71,12 @@ def home():
     if 'username' not in session:
         return redirect("/")
     
-    # Fetch the user data directly from the Java backend
-    response = requests.get(f'http://localhost:8080/api/user/name/{session["username"]}')
-    if response.status_code != 200:
-        return redirect("/"), 401
-    user_data = response.json()
-
     # Existing logic for weather data
+    user_data = session['user_data']
     home_forecast = {"error": "Home ZIP code not set."} if 'home' not in user_data else forecast(*forecast_data(user_data['home']['zip']))
 
     if request.method == "POST":
+        
         towndata = request.form.get("town_or_zip")
 
         if validate_location(towndata):
@@ -150,11 +142,12 @@ def modify_favorites():
 
 @app.route('/edit_profile', methods=['GET', 'POST']) #edit profile page----------------------------------
 def edit_profile():
-    if 'username' not in session:
+    print("Debug: Session Data in ep: ", session)
+    if 'username' not in session or not session.get('user_data'):
         return redirect("/")
     
     username = session['username']
-    user_data = session.get('user_data')
+    user_data = session['user_data']
     avatar = os.listdir('static/profileimages')
 
     if request.method == 'POST':

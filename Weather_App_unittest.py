@@ -46,6 +46,7 @@ class TestWeatherApp(unittest.TestCase):
         mock_get.return_value.json.return_value = {'username': 'test_user'}
         with self.client.session_transaction() as sess:
             sess['username'] = 'test_user'
+            sess['user_data'] = {'username': 'test_user'}
         response = self.client.get('/home')
         self.assertEqual(response.status_code, 200)
 
