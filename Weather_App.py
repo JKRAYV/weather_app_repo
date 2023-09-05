@@ -329,7 +329,7 @@ def forecast_data(town_or_zip): # returns forecast and city data as json.
 def forecast(forecast_data, towndata):
     # Initialize an empty dictionary to hold the processed forecast
     processed_forecast = {}
-    print(towndata)
+
     # Check if forecast_data contains the expected keys
     if forecast_data and 'properties' in forecast_data and 'periods' in forecast_data['properties']:
         forecast_periods = forecast_data['properties']['periods']
@@ -353,8 +353,6 @@ def forecast(forecast_data, towndata):
             # Process alert data (if needed)
             # For simplicity, adding raw alert_data. You may need to extract specific fields.
             processed_forecast['alert'] = alert_data
-            print(processed_forecast['alert'])
-            print(json.dumps(processed_forecast['alert'], indent=1))
         return processed_forecast
     else:
         return None
