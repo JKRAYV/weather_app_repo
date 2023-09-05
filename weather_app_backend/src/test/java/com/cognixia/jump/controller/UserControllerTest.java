@@ -125,16 +125,27 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testAddLocation() throws Exception {
-        // User foundUser = new User ("1", "Gavin", "Liburd", "GLib", "GLib@gmail.com", "HelloWorld");
-        // Location addedLocation = new Location("atlanta, ga", 30126);
-        // foundUser.setFavorites(new ArrayList<>());
-        // foundUser.getFavorites().add(addedLocation);
+    public void testDeleteUser() throws Exception {
+        User deletedUser = new User("1", "Gavin", "Liburd", "GLib", "GLib@gmail.com", "HelloWorld");
         
-        // when(userRepo.findByUsername(foundUser.getUsername())).thenReturn(Optional.of(foundUser));
+        when(userRepo.findByUsername(deletedUser.getUsername())).thenReturn(Optional.of(deletedUser));
 
-        // ResponseEntity<User> result = userController.addLocation(foundUser.getUsername(), addedLocation);
-        // assertEquals(HttpStatus.OK, result.getStatusCode());
-        // assertEquals(result.getBody(), foundUser);
+        ResponseEntity<User> result = userController.deleteUser(deletedUser.getUsername());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(result.getBody(), deletedUser);
     }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+        User foundUser = new User("1", "Gavin", "Liburd", "GLib", "GLib@gmail.com", "HelloWorld");
+        User updatedUser = new User();
+
+        when(userRepo.findByUsername(foundUser.getUsername())).thenReturn(Optional.of(foundUser));
+        when(userRepo.save(foundUser)).thenReturn(updatedUser);
+
+        ResponseEntity<User> result = userController.updateUser(foundUser.getUsername(), updatedUser);
+        assertEquals(result.getStatusCode(), HttpStatus.OK);
+        assertEquals(result.getBody(), updatedUser);
+    }
+  
 }
