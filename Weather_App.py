@@ -18,7 +18,7 @@ try:
 except:
         print("ERROR- cannot connect to db")
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST"]) #root/login page----------------------------------
 def login():
     app.secret_key = os.urandom(24)
     if request.method == "POST":
@@ -43,7 +43,7 @@ def login():
     
     return render_template("login.html")
 
-@app.route('/register', methods=["GET", "POST"])
+@app.route('/register', methods=["GET", "POST"]) #register page----------------------------------
 def register():
     if request.method == "POST":
         user_data = {
@@ -70,7 +70,7 @@ def register():
             return render_template("register.html", error="Could not register user. Try again.")
     return render_template("register.html")
 
-@app.route('/home', methods=["GET","POST","PUT"])
+@app.route('/home', methods=["GET","POST","PUT"]) #home page----------------------------------
 def home():
     if 'username' not in session:
         return redirect("/")
@@ -106,7 +106,7 @@ def home():
 
     return render_template("userpage.html", user_data=user_data, home_forecast=home_forecast)
 
-@app.route('/modify_favorites', methods=["POST"])
+@app.route('/modify_favorites', methods=["POST"]) #modify favorites page----------------------------------
 def modify_favorites():
     if 'username' not in session:
         return redirect("/"), 401
@@ -148,7 +148,7 @@ def modify_favorites():
 
     return redirect("/home")
 
-@app.route('/edit_profile', methods=['GET', 'POST'])
+@app.route('/edit_profile', methods=['GET', 'POST']) #edit profile page----------------------------------
 def edit_profile():
     if 'username' not in session:
         return redirect("/")
@@ -222,7 +222,7 @@ def edit_profile():
     return render_template("options.html", user_data=user_data, avatar=avatar)
 
 
-@app.route('/town', methods=['GET'])
+@app.route('/town', methods=['GET']) #town page----------------------------------
 def town():
     searched_town = request.args.get('searched_town', None)
     if validate_location(searched_town):
@@ -236,7 +236,7 @@ def town():
     return render_template("town.html", display_data="Nothing to display.", towndata="Nothing to display.", error="Invalid town or zip.")
 
 
-def validate_location(town_or_zip):
+def validate_location(town_or_zip): #checks if town is valid
     nomi = pgeocode.Nominatim('us')
 
     if town_or_zip[0].isnumeric():

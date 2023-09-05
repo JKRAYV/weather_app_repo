@@ -12,7 +12,9 @@
 
     <!-- Dashboard Bar -->
     <div id="dashboard-bar">
+        {% if user_data.profile_image %}
         <span><h2>Username: {{ user_data.username }} <img src="{{ url_for('static', filename='profileimages/' + user_data.profile_image) }}" width="20" height="20" style="vertical-align: middle;"></h2></span>
+        {% endif %}    
             <form action="/town" method="get">
                 <input type="text" name="searched_town" placeholder="Search for a town...">
                 <button type="submit">Search</button>

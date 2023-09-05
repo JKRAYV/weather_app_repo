@@ -79,8 +79,6 @@ public class UserController {
     @PostMapping("/user/auth")
     public ResponseEntity<User> getUserByCredentials(@Valid @RequestBody User user) throws Exception {
 
-        System.out.println(user.getUsername() + " " +user.getPassword());
-
         Optional<User> validUser = userRepo.getByCredentials(user.getUsername(), user.getPassword());
 
         if (validUser.isEmpty()) {
