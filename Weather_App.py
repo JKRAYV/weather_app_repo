@@ -71,6 +71,8 @@ def home():
     if 'username' not in session:
         return redirect("/")
     
+    error_message = request.args.get('error', None)
+    
     # Existing logic for weather data
     user_data = session['user_data']
     home_forecast = {"error": "Home ZIP code not set."} if 'home' not in user_data else forecast(*forecast_data(user_data['home']['zip']))
@@ -96,7 +98,7 @@ def home():
             else:
                 return render_template("userpage.html", user_data=user_data, error="Could not fetch weather data.")
 
-    return render_template("userpage.html", user_data=user_data, home_forecast=home_forecast)
+    return render_template("userpage.html", user_data=user_data, home_forecast=home_forecast, error = error_message)
 
 @app.route('/modify_favorites', methods=["POST"]) #modify favorites page----------------------------------
 def modify_favorites():
@@ -107,6 +109,11 @@ def modify_favorites():
 
     action = request.form.get("action")
     zip_data = request.form.get("zip_data")
+
+    if not zip_data.isdigit():
+        print("Error")
+        return redirect("/home?error=Invalid ZIP code")
+
 
     if action == "add":
         raw_data, towndata = forecast_data(str(zip_data))
@@ -120,14 +127,18 @@ def modify_favorites():
             
             update_response = requests.post(f'http://localhost:8080/api/user/location/{username}', json=new_favorite)
             
-            if update_response.status_code != 200:
-                return redirect("/home"), 400
+            if update_response.status_code == 200:
+                updated_user_data = update_response.json()
+                session['user_data'] = updated_user_data
+                return redirect("/home")
 
     elif action == "remove":
         update_response = requests.delete(f'http://localhost:8080/api/user/{username}/{zip_data}')
         
-        if update_response.status_code != 200:
-            return redirect("/home"), 400
+        if update_response.status_code == 200:
+            updated_user_data = update_response.json()
+            session['user_data'] = updated_user_data
+            return redirect("/home")
 
     else:
         return redirect("/home"), 400

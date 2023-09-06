@@ -49,6 +49,9 @@
         <!-- Favorites Section -->
         <div id="favorites">
             <h2>Favorites</h2>
+            {% if error %}
+            <p style = "color: red">Please only enter a zipcode.</p>
+            {% endif %}
             <span>  <form action="/modify_favorites" method="post">
                         <input type="hidden" name="action" value="add">
                         <input type="text" name="zip_data" placeholder="Enter ZIP code to add...">
